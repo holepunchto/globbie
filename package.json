@@ -21,6 +21,9 @@
     "url": "https://github.com/holepunchto/globbie/issues"
   },
   "homepage": "https://github.com/holepunchto/globbie#readme",
+  "dependencies": {
+    "picomatch": "^4.0.2"
+  },
   "devDependencies": {
     "standard": "^17.1.0"
   }
