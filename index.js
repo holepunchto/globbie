@@ -41,7 +41,7 @@ class Globbie {
       if (stat.isDirectory()) matches.push(...(await this.#matchAsync(p).catch(() => [])))
       else if (this._isMatch(p)) matches.push(p)
     })
-    promises.each((p) => p.catch(() => {}))
+    promises.forEach((p) => p.catch(() => {}))
 
     await Promise.allSettled(promises)
 
