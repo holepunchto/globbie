@@ -24,14 +24,24 @@ class Globbie {
   }
 
   async #matchAsync (dir = '.') {
-    const matches = []
-    await Promise.all((await fs.promises.readdir(dir)).map(async f => {
+    const files = await fs.promises.readdir(dir).catch((e) => {
+      console.error('Failed to get files in directory', e)
+      return []
+    })
+    const results = await Promise.allSettled(files.map(async f => {
       const p = path.join(dir, f)
-      if ((await fs.promises.stat(p)).isDirectory()) matches.push(...await this.match(p))
-      else if (this._isMatch(p)) matches.push(p)
+      const stat = await fs.promises.stat(p).catch((e) => {
+        console.error('Failed to get file stats', e)
+        return null
+      })
+      if (!stat) return null
+
+      if (stat.isDirectory()) return this.#matchAsync(p)
+      else if (this._isMatch(p)) return [p]
+      else return []
     }))
 
-    return matches
+    return results.flatMap(r => r.status === 'fulfilled' ? r.value : []).filter((result) => result !== null)
   }
 }
 
