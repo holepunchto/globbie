@@ -28,20 +28,23 @@ class Globbie {
       console.error('Failed to get files in directory', e)
       return []
     })
-    const results = await Promise.allSettled(files.map(async f => {
+
+    const matches = []
+    const promises = files.map(async f => {
       const p = path.join(dir, f)
       const stat = await fs.promises.stat(p).catch((e) => {
         console.error('Failed to get file stats', e)
         return null
       })
-      if (!stat) return null
+      if (!stat) return
 
-      if (stat.isDirectory()) return this.#matchAsync(p)
-      else if (this._isMatch(p)) return [p]
-      else return []
-    }))
+      if (stat.isDirectory()) matches.push(...(await this.#matchAsync(p).catch(() => [])))
+      else if (this._isMatch(p)) matches.push(p)
+    })
 
-    return results.flatMap(r => r.status === 'fulfilled' ? r.value : []).filter((result) => result !== null)
+    await Promise.allSettled(promises)
+
+    return matches
   }
 }
 
