@@ -3,7 +3,7 @@ const path = require('path')
 const picomatch = require('picomatch')
 
 class Globbie {
-  constructor (pattern, sync = false) {
+  constructor (pattern, { sync = false } = {}) {
     this._isMatch = picomatch(pattern, { windows: process.platform === 'win32' })
     this._sync = sync
   }

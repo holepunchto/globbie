@@ -9,7 +9,7 @@ function toPlatformPaths (paths) {
 }
 
 test('match all js files', async (t) => {
-  const g = new Globbie('**.js', true)
+  const g = new Globbie('**.js', { sync: true })
   const matches = g.match()
 
   t.alike(matches.sort(), toPlatformPaths([
@@ -26,7 +26,7 @@ test('match all js files', async (t) => {
 })
 
 test('match all js and ts files', async (t) => {
-  const g = new Globbie('**/*.{js,ts}', true)
+  const g = new Globbie('**/*.{js,ts}', { sync: true })
   const matches = g.match()
 
   t.alike(matches.sort(), toPlatformPaths([
@@ -46,7 +46,7 @@ test('match all js and ts files', async (t) => {
 })
 
 test('match only subpath js files', async (t) => {
-  const g = new Globbie('subpath/**/*.js', true)
+  const g = new Globbie('subpath/**/*.js', { sync: true })
   const matches = g.match()
 
   t.alike(matches.sort(), toPlatformPaths([
@@ -60,7 +60,7 @@ test('match only subpath js files', async (t) => {
 })
 
 test('match only subpath js files - dir set to subsubpath', async (t) => {
-  const g = new Globbie('subpath/**/*.js', true)
+  const g = new Globbie('subpath/**/*.js', { sync: true })
   const matches = g.match('subpath/subsubpath')
 
   t.alike(matches.sort(), toPlatformPaths([
@@ -121,8 +121,8 @@ test('async match only subpath', async (t) => {
 })
 
 test('async match only subpath js files - dir set to subsubpath', async (t) => {
-  const g = new Globbie('subpath/**/*.js', true)
-  const matches = g.match('subpath/subsubpath')
+  const g = new Globbie('subpath/**/*.js')
+  const matches = await g.match('subpath/subsubpath')
 
   t.alike(matches.sort(), toPlatformPaths([
     'subpath/subsubpath/subsubpathfile-1.js',
