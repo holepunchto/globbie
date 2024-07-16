@@ -27,15 +27,14 @@ class Globbie {
     const files = await fs.promises.readdir(dir)
 
     const matches = []
-    const promises = files
-      .map(async f => {
-        const p = path.join(dir, f)
+    const promises = files.map(async (file) => {
+      const filePath = path.join(dir, file)
 
-        if ((await fs.promises.stat(p)).isDirectory()) matches.push(...(await this.#matchAsync(p)))
-        else if (this._isMatch(p)) matches.push(p)
-      })
+      if ((await fs.promises.stat(filePath)).isDirectory()) matches.push(...(await this.#matchAsync(filePath)))
+      else if (this._isMatch(filePath)) matches.push(filePath)
+    })
 
-    for (const p of promises) p.catch(() => {})
+    for (const promise of promises) promise.catch(() => {})
 
     const results = await Promise.allSettled(promises)
     const error = results.find(({ status }) => status === 'rejected')?.reason
