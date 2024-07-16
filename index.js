@@ -14,10 +14,10 @@ class Globbie {
 
   #matchSync (dir = '.') {
     const matches = []
-    for (const f of fs.readdirSync(dir)) {
-      const p = path.join(dir, f)
-      if (fs.statSync(p).isDirectory()) matches.push(...this.match(p))
-      else if (this._isMatch(p)) matches.push(p)
+    for (const file of fs.readdirSync(dir)) {
+      const filePath = path.join(dir, file)
+      if (fs.statSync(filePath).isDirectory()) matches.push(...this.match(filePath))
+      else if (this._isMatch(filePath)) matches.push(filePath)
     }
 
     return matches
