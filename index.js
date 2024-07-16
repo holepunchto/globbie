@@ -34,7 +34,8 @@ class Globbie {
         if ((await fs.promises.stat(p)).isDirectory()) matches.push(...(await this.#matchAsync(p)))
         else if (this._isMatch(p)) matches.push(p)
       })
-      .map((p) => p.catch(() => {}))
+
+    for (const p of promises) p.catch(() => {})
 
     const results = await Promise.allSettled(promises)
     const error = results.find(({ status }) => status === 'rejected')?.reason
