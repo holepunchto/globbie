@@ -16,7 +16,7 @@ class Globbie {
     const matches = []
     for (const file of fs.readdirSync(dir)) {
       const filePath = path.join(dir, file)
-      if (fs.statSync(filePath).isDirectory()) matches.push(...this.match(filePath))
+      if (fs.lstatSync(filePath).isDirectory()) matches.push(...this.match(filePath))
       else if (this._isMatch(filePath)) matches.push(filePath)
     }
 
@@ -30,7 +30,7 @@ class Globbie {
     const promises = files.map(async (file) => {
       const filePath = path.join(dir, file)
 
-      if ((await fs.promises.stat(filePath)).isDirectory()) matches.push(...(await this.#matchAsync(filePath)))
+      if ((await fs.promises.lstat(filePath)).isDirectory()) matches.push(...(await this.#matchAsync(filePath)))
       else if (this._isMatch(filePath)) matches.push(filePath)
     })
 
