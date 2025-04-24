@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const picomatch = require('picomatch')
+const process = require('process')
 
 class Globbie {
   constructor (pattern, { sync = false } = {}) {

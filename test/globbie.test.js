@@ -1,6 +1,7 @@
 const Globbie = require('../index')
 const path = require('path')
 const test = require('brittle')
+const process = require('process')
 
 process.chdir(path.join(__dirname, 'fixtures'))
 
