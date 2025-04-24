@@ -21,7 +21,21 @@
     "url": "https://github.com/holepunchto/globbie/issues"
   },
   "homepage": "https://github.com/holepunchto/globbie#readme",
+  "imports": {
+    "fs": {
+      "bare": "bare-fs"
+    },
+    "path": {
+      "bare": "bare-path"
+    },
+    "process": {
+      "bare": "bare-process"
+    }
+  },
   "dependencies": {
+    "bare-fs": "^4.1.2",
+    "bare-path": "^3.0.0",
+    "bare-process": "^4.2.1",
     "brittle": "^3.6.0",
     "picomatch": "^4.0.2"
   },
