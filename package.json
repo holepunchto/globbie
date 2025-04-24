@@ -4,7 +4,9 @@
   "description": "Simple directory globbing using picomatch",
   "main": "index.js",
   "scripts": {
-    "test": "standard && brittle test/*.js"
+    "test": "node test/*.js",
+    "test:bare": "bare test/*.js",
+    "lint": "standard"
   },
   "repository": {
     "type": "git",
