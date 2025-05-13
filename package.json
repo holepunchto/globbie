@@ -38,10 +38,10 @@
     "bare-fs": "^4.1.2",
     "bare-path": "^3.0.0",
     "bare-process": "^4.2.1",
-    "brittle": "^3.6.0",
     "picomatch": "^4.0.2"
   },
   "devDependencies": {
+    "brittle": "^3.16.2",
     "standard": "^17.1.0"
   }
 }
