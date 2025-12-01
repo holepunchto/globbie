@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write .",
-    "lint": "prettier --check .",
-    "test": "node test/globbie.test.js",
-    "test:bare": "bare test/globbie.test.js"
+    "lint": "prettier --check . && lunte",
+    "test": "npm run test:node && npm run test:bare",
+    "test:node": "brittle-node --coverage test/globbie.test.js",
+    "test:bare": "brittle-bare --coverage test/globbie.test.js"
   },
   "repository": {
     "type": "git",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "brittle": "^3.16.2",
+    "lunte": "^1.0.0",
     "prettier": "^3.6.2",
     "prettier-config-holepunch": "^1.0.0"
   }
