@@ -6,9 +6,7 @@ const process = require('process')
 process.chdir(path.join(__dirname, 'fixtures'))
 
 function toPlatformPaths(paths) {
-  return process.platform === 'win32'
-    ? paths.map((p) => p.replace(/\//g, path.sep))
-    : paths
+  return process.platform === 'win32' ? paths.map((p) => p.replace(/\//g, path.sep)) : paths
 }
 
 test('match all js files', async (t) => {
