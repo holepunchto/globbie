@@ -39,10 +39,15 @@ class Globbie {
     const matches = []
     const promises = files.map(async (file) => {
       const filePath = path.join(dir, file)
-
-      if ((await fs.promises.lstat(filePath)).isDirectory()) {
-        matches.push(...(await this.#matchAsync(filePath)))
-      } else if (this._isMatch(filePath)) matches.push(filePath)
+      let stat = null
+      try {
+        stat = await fs.promises.lstat(filePath)
+      } catch (err) {
+        if (err.code === 'ENOENT') return // removed underneath us
+        throw err
+      }
+      if (stat.isDirectory()) matches.push(...(await this.#matchAsync(filePath)))
+      else if (this._isMatch(filePath)) matches.push(filePath)
     })
 
     for (const promise of promises) promise.catch(() => {})
