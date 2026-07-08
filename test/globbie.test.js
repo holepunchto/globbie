@@ -1,4 +1,5 @@
 const Globbie = require('../index')
+const fs = require('fs')
 const path = require('path')
 const test = require('brittle')
 const process = require('process')
@@ -153,5 +154,39 @@ test('async match only subpath js files - dir set to subsubpath', async (t) => {
       'subpath/subsubpath/subsubpathfile-2.js',
       'subpath/subsubpath/subsubpathfile-3.js'
     ])
+  )
+})
+
+test('sync match tolerates a directory removed between readdir and lstat', async (t) => {
+  // simulates ENOENT race: readdirSync lists a directory, but by the time
+  // lstatSync gets to it, a concurrent process has deleted it
+  const dirName = 'vanishing-dir'
+  fs.mkdirSync(dirName)
+  fs.writeFileSync(path.join(dirName, 'ghost.js'), '')
+
+  const originalLstatSync = fs.lstatSync
+  let removed = false
+  fs.lstatSync = function (target, ...args) {
+    if (!removed && target === dirName) {
+      removed = true
+      fs.rmSync(dirName, { recursive: true })
+    }
+    return originalLstatSync.call(fs, target, ...args)
+  }
+  t.teardown(() => {
+    fs.lstatSync = originalLstatSync
+    if (fs.existsSync(dirName)) fs.rmSync(dirName, { recursive: true })
+  })
+
+  const g = new Globbie('**.js', { sync: true })
+
+  let matches = []
+  t.execution(() => {
+    matches = g.match()
+  })
+  t.ok(removed, 'the directory was actually removed mid-walk')
+  t.absent(
+    matches.includes(path.join(dirName, 'ghost.js')),
+    'the vanished directory contributes no matches'
   )
 })
