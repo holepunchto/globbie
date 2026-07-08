@@ -190,3 +190,35 @@ test('sync match tolerates a directory removed between readdir and lstat', async
     'the vanished directory contributes no matches'
   )
 })
+
+test('async match tolerates a directory removed between readdir and lstat', async (t) => {
+  const dirName = 'vanishing-dir-async'
+  fs.mkdirSync(dirName)
+  fs.writeFileSync(path.join(dirName, 'ghost.js'), '')
+
+  const originalLstat = fs.promises.lstat
+  let removed = false
+  fs.promises.lstat = function (target, ...args) {
+    if (!removed && target === dirName) {
+      removed = true
+      fs.rmSync(dirName, { recursive: true })
+    }
+    return originalLstat.call(fs, target, ...args)
+  }
+  t.teardown(() => {
+    fs.promises.lstat = originalLstat
+    if (fs.existsSync(dirName)) fs.rmSync(dirName, { recursive: true })
+  })
+
+  const g = new Globbie('**.js', { sync: false })
+
+  let matches = []
+  await t.execution(async () => {
+    matches = await g.match()
+  })
+  t.ok(removed, 'the directory was actually removed mid-walk')
+  t.absent(
+    matches.includes(path.join(dirName, 'ghost.js')),
+    'the vanished directory contributes no matches'
+  )
+})
