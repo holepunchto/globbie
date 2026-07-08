@@ -1,28 +1,31 @@
-name: Integrate
+name: Test with Node
+
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    name: Lint
-    steps:
-      - uses: holepunchto/actions/node-base@v1
-      - run: npm run lint
   test:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             platform: linux
+            arch: x64
+
           - os: macos-latest
             platform: darwin
+            arch: x64
+
           - os: windows-latest
             platform: win32
+            arch: x64
+
     runs-on: ${{ matrix.os }}
-    name: Test / ${{ matrix.platform }}
+    name: ${{ matrix.platform }}-${{ matrix.arch }}
     steps:
-      - uses: holepunchto/actions/bare-base@v1
-      - run: npm test
+      - uses: holepunchto/actions/node-base@v1
+
+      - name: Run tests
+        run: npm run test:node

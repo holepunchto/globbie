@@ -160,33 +160,67 @@ test('async match only subpath js files - dir set to subsubpath', async (t) => {
 test('sync match tolerates a directory removed between readdir and lstat', async (t) => {
   // simulates ENOENT race: readdirSync lists a directory, but by the time
   // lstatSync gets to it, a concurrent process has deleted it
+  const baseDir = await t.tmp()
   const dirName = 'vanishing-dir'
-  fs.mkdirSync(dirName)
-  fs.writeFileSync(path.join(dirName, 'ghost.js'), '')
+  const dirPath = path.join(baseDir, dirName)
+  fs.mkdirSync(dirPath)
+  fs.writeFileSync(path.join(dirPath, 'ghost.js'), '')
 
   const originalLstatSync = fs.lstatSync
   let removed = false
   fs.lstatSync = function (target, ...args) {
-    if (!removed && target === dirName) {
+    if (!removed && target === dirPath) {
       removed = true
-      fs.rmSync(dirName, { recursive: true })
+      fs.rmSync(dirPath, { recursive: true })
     }
     return originalLstatSync.call(fs, target, ...args)
   }
   t.teardown(() => {
     fs.lstatSync = originalLstatSync
-    if (fs.existsSync(dirName)) fs.rmSync(dirName, { recursive: true })
   })
 
   const g = new Globbie('**.js', { sync: true })
 
   let matches = []
   t.execution(() => {
-    matches = g.match()
+    matches = g.match(baseDir)
   })
   t.ok(removed, 'the directory was actually removed mid-walk')
   t.absent(
-    matches.includes(path.join(dirName, 'ghost.js')),
+    matches.includes(path.join(dirPath, 'ghost.js')),
+    'the vanished directory contributes no matches'
+  )
+})
+
+test('async match tolerates a directory removed between readdir and lstat', async (t) => {
+  const baseDir = await t.tmp()
+  const dirName = 'vanishing-dir'
+  const dirPath = path.join(baseDir, dirName)
+  fs.mkdirSync(dirPath)
+  fs.writeFileSync(path.join(dirPath, 'ghost.js'), '')
+
+  const originalLstat = fs.promises.lstat
+  let removed = false
+  fs.promises.lstat = function (target, ...args) {
+    if (!removed && target === dirPath) {
+      removed = true
+      fs.rmSync(dirPath, { recursive: true })
+    }
+    return originalLstat.call(fs.promises, target, ...args)
+  }
+  t.teardown(() => {
+    fs.promises.lstat = originalLstat
+  })
+
+  const g = new Globbie('**.js', { sync: false })
+
+  let matches = []
+  await t.execution(async () => {
+    matches = await g.match(baseDir)
+  })
+  t.ok(removed, 'the directory was actually removed mid-walk')
+  t.absent(
+    matches.includes(path.join(dirPath, 'ghost.js')),
     'the vanished directory contributes no matches'
   )
 })
