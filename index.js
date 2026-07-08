@@ -19,9 +19,15 @@ class Globbie {
     const matches = []
     for (const file of fs.readdirSync(dir)) {
       const filePath = path.join(dir, file)
-      if (fs.lstatSync(filePath).isDirectory()) {
-        matches.push(...this.match(filePath))
-      } else if (this._isMatch(filePath)) matches.push(filePath)
+      let stat = null
+      try {
+        stat = fs.lstatSync(filePath)
+      } catch (err) {
+        if (err.code === 'ENOENT') continue // removed underneath us
+        throw err
+      }
+      if (stat.isDirectory()) matches.push(...this.match(filePath))
+      else if (this._isMatch(filePath)) matches.push(filePath)
     }
 
     return matches
