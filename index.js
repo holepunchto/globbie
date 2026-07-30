@@ -16,8 +16,16 @@ class Globbie {
   }
 
   #matchSync(dir = '.') {
+    let files
+    try {
+      files = fs.readdirSync(dir)
+    } catch (err) {
+      if (err.code === 'ENOENT') return [] // removed underneath us
+      throw err
+    }
+
     const matches = []
-    for (const file of fs.readdirSync(dir)) {
+    for (const file of files) {
       const filePath = path.join(dir, file)
       let stat = null
       try {
@@ -34,7 +42,13 @@ class Globbie {
   }
 
   async #matchAsync(dir = '.') {
-    const files = await fs.promises.readdir(dir)
+    let files
+    try {
+      files = await fs.promises.readdir(dir)
+    } catch (err) {
+      if (err.code === 'ENOENT') return [] // removed underneath us
+      throw err
+    }
 
     const matches = []
     const promises = files.map(async (file) => {
